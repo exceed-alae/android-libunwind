@@ -1,5 +1,8 @@
 #!/bin/sh
 
+prefix_dir=`pwd`/out
+mkdir -p ${prefix_dir}
+
 autoreconf -i
 
 arm_cc="${NDKROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang"
@@ -36,6 +39,8 @@ eval ./configure CC=\"${arm_cc} ${toolchain_params[@]}\" \
                  CXX=\"${arm_cpp} ${toolchain_params[@]}\" \
                  CXXCPP=\"${arm_cpp} ${toolchain_params[@]} -E\" \
                  LDFLAGS=\"${toolchain_params[@]} ${ldflags[@]}\" \
-		 --host=aarch64 --disable-coredump --disable-ptrace
+		 --host=aarch64 --disable-coredump --disable-ptrace --prefix=${prefix_dir}
 
 make
+make install
+tar zcvf libunwind_android_aarch64.tar.gz -C ${prefix_dir} include lib
