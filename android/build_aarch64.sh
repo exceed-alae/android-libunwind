@@ -5,26 +5,36 @@ mkdir -p ${prefix_dir}
 
 autoreconf -i
 
-arm_cc="${NDKROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang"
-arm_cpp="${NDKROOT}/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++"
+target="aarch64-linux-android"
+gcc_ver="4.9"
+host="darwin-x86_64"
+compiler_bin="${NDKROOT}/toolchains/llvm/prebuilt/${host}/bin/"
+
+arm_cc="${compiler_bin}/clang"
+arm_cpp="${compiler_bin}/clang++"
+
+toolchain_base="${NDKROOT}/toolchains/${target}-${gcc_ver}/prebuilt/${host}"
+toolchain_bin="${toolchain_base}/bin"
 
 toolchain_params=(
-    "-target aarch64-none-linux-android"
-    "--sysroot=\"${NDKROOT}/platforms/android-24/arch-arm64\""
-    "-gcc-toolchain \"${NDKROOT}/toolchains/aarch64-linux-android-4.9/prebuilt/darwin-x86_64\""
+    "-target aarch64-linux-android"
+    "--sysroot=${NDKROOT}/platforms/android-21/arch-arm64"
+    "-gcc-toolchain ${toolchain_base}"
+)
+
+cflags=(
+    "-DUNW_ADDITIONAL_PREFIX=libunwind_override"
 )
 
 ldflags=(
-#  "-nostdlib"
-  "-Bdynamic"
   "-fPIE"
   "-pie"
-  "-Wl,-dynamic-linker,/system/bin/linker"
   "-Wl,--gc-sections"
-  "-Wl,-z,nocopyreloc"
   "-Wl,--whole-archive"
   "-Wl,--no-whole-archive"
   "-lm"
+  "-Wl,-Bdynamic"
+  "-Wl,-z,nocopyreloc"
   "-Wl,-z,noexecstack"
   "-Wl,-z,relro"
   "-Wl,-z,now"
@@ -38,8 +48,13 @@ eval ./configure CC=\"${arm_cc} ${toolchain_params[@]}\" \
                  CPP=\"${arm_cc} ${toolchain_params[@]} -E\" \
                  CXX=\"${arm_cpp} ${toolchain_params[@]}\" \
                  CXXCPP=\"${arm_cpp} ${toolchain_params[@]} -E\" \
-                 LDFLAGS=\"${toolchain_params[@]} ${ldflags[@]}\" \
-		 --host=aarch64 --disable-coredump --disable-ptrace --prefix=${prefix_dir}
+                 LD=\"${arm_cpp} ${toolchain_params[@]}\" \
+                 LDFLAGS=\"${ldflags[@]}\" \
+		 CFLAGS=\"${cflags[@]}\" \
+                 CXXFLAGS=\"${cflags[@]}\" \
+                 AR=\"${toolchain_bin}/${target}-ar\" \
+                 RANLIB=\"${toolchain_bin}/${target}-ranlib\" \
+		 --host=aarch64-linux-android --disable-coredump --disable-ptrace --enable-cxx-exceptions --disable-shared --enable-static --prefix=${prefix_dir}
 
 make
 make install
