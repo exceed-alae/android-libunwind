@@ -3,6 +3,7 @@
 prefix_dir=`pwd`/out
 mkdir -p ${prefix_dir}
 
+automake
 autoreconf -i
 
 target="aarch64-linux-android"
@@ -54,7 +55,7 @@ eval ./configure CC=\"${arm_cc} ${toolchain_params[@]}\" \
                  CXXFLAGS=\"${cflags[@]}\" \
                  AR=\"${toolchain_bin}/${target}-ar\" \
                  RANLIB=\"${toolchain_bin}/${target}-ranlib\" \
-		 --host=aarch64-linux-android --disable-coredump --disable-ptrace --enable-cxx-exceptions --disable-shared --enable-static --prefix=${prefix_dir}
+		 --host=aarch64-linux-android --disable-coredump --enable-cxx-exceptions --disable-shared --enable-static --prefix=${prefix_dir}
 
 make
 make install
