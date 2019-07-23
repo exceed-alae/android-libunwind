@@ -98,6 +98,7 @@ libunwind_la_LIBADD =
 # libraries:
 libunwind_la_SOURCES_common =					\
 	$(libunwind_la_SOURCES_os)				\
+	mi/map.c						\
 	mi/init.c mi/flush_cache.c mi/mempool.c mi/strerror.c
 
 # List of arch-independent files needed by generic library (libunwind-$ARCH):
@@ -123,6 +124,8 @@ libunwind_la_SOURCES_local_unwind =					\
 
 #  _ReadULEB()/_ReadSLEB() are needed for Intel C++ 8.0 compatibility
 libunwind_la_SOURCES_os_linux_local = mi/_ReadULEB.c mi/_ReadSLEB.c
+else
+libunwind_la_SOURCES_os_linux_local =
 endif
 
 # List of arch-independent files needed by local-only library (libunwind):
@@ -130,6 +133,7 @@ libunwind_la_SOURCES_local_nounwind =					\
 	$(libunwind_la_SOURCES_os_local)				\
 	mi/backtrace.c							\
 	mi/dyn-cancel.c mi/dyn-info-list.c mi/dyn-register.c		\
+	mi/Lmap.c							\
 	mi/Ldyn-extract.c mi/Lfind_dynamic_proc_info.c			\
 	mi/Lget_accessors.c						\
 	mi/Lget_proc_info_by_ip.c mi/Lget_proc_name.c			\
@@ -144,6 +148,9 @@ libunwind_la_SOURCES_local =						\
 
 noinst_HEADERS += os-linux.h
 libunwind_la_SOURCES_os_linux = os-linux.c
+
+libunwind_la_SOURCES_os_linux += os-common.c
+libunwind_la_SOURCES_os_linux_local += Los-common.c
 
 libunwind_la_SOURCES_os_hpux = os-hpux.c
 
